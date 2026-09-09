@@ -1,0 +1,1003 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="description" content="Personalize respostas de atendimento e copie mensagens prontas para o WhatsApp.">
+  <meta name="theme-color" content="#153f35">
+  <title>Mensagem Pronta</title>
+  <style>
+    :root {
+      color-scheme: light;
+      --background: #f4f8f4;
+      --surface: #ffffff;
+      --surface-soft: #edf7ed;
+      --text: #163a31;
+      --muted: #667b74;
+      --border: #d9e7de;
+      --primary: #195344;
+      --primary-dark: #123f34;
+      --lime: #b9f275;
+      --lime-hover: #cdf69b;
+      --success: #1d6b50;
+      --radius: 18px;
+      --shadow: 0 20px 55px rgba(19, 72, 56, 0.10);
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    html {
+      min-width: 320px;
+      background: var(--background);
+      font-family: Inter, ui-sans-serif, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      color: var(--text);
+    }
+
+    body {
+      min-height: 100vh;
+      margin: 0;
+      background:
+        radial-gradient(circle at 0 0, rgba(185, 242, 117, 0.22), transparent 34rem),
+        linear-gradient(180deg, rgba(255, 255, 255, 0.38), transparent 28rem),
+        var(--background);
+    }
+
+    button,
+    input,
+    select {
+      font: inherit;
+    }
+
+    button,
+    select {
+      cursor: pointer;
+    }
+
+    .app {
+      width: min(1160px, calc(100% - 32px));
+      margin: 0 auto;
+      padding: 32px 0 56px;
+    }
+
+    .topbar {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 18px;
+      margin-bottom: 28px;
+    }
+
+    .brand {
+      display: flex;
+      align-items: center;
+      gap: 13px;
+    }
+
+    .brand-icon {
+      display: grid;
+      width: 48px;
+      height: 48px;
+      flex: 0 0 auto;
+      place-items: center;
+      border-radius: 16px;
+      background: var(--primary);
+      color: white;
+      box-shadow: 0 8px 24px rgba(21, 63, 53, 0.18);
+    }
+
+    .brand-icon svg {
+      width: 25px;
+      height: 25px;
+    }
+
+    .eyebrow {
+      margin: 0 0 3px;
+      color: var(--primary);
+      font-size: 11px;
+      font-weight: 800;
+      letter-spacing: .17em;
+      text-transform: uppercase;
+    }
+
+    h1 {
+      margin: 0;
+      font-size: clamp(25px, 4vw, 34px);
+      line-height: 1.05;
+      letter-spacing: -.035em;
+    }
+
+    .count {
+      flex: 0 0 auto;
+      padding: 8px 13px;
+      border: 1px solid rgba(25, 83, 68, 0.12);
+      border-radius: 999px;
+      background: rgba(255, 255, 255, 0.72);
+      color: var(--muted);
+      font-size: 12px;
+      font-weight: 700;
+      box-shadow: 0 5px 18px rgba(20, 63, 52, 0.05);
+    }
+
+    .workspace {
+      display: grid;
+      grid-template-columns: minmax(0, 1.05fr) minmax(350px, .9fr);
+      align-items: start;
+      gap: 22px;
+    }
+
+    .card {
+      overflow: hidden;
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      background: var(--surface);
+      box-shadow: var(--shadow);
+    }
+
+    .card-header {
+      padding: 22px 24px 19px;
+      border-bottom: 1px solid var(--border);
+    }
+
+    .section-label {
+      display: flex;
+      align-items: center;
+      gap: 7px;
+      margin: 0 0 8px;
+      color: var(--primary);
+      font-size: 11px;
+      font-weight: 800;
+      letter-spacing: .15em;
+      text-transform: uppercase;
+    }
+
+    .section-label svg {
+      width: 15px;
+      height: 15px;
+    }
+
+    h2 {
+      margin: 0;
+      font-size: 21px;
+      line-height: 1.25;
+      letter-spacing: -.02em;
+    }
+
+    .card-body {
+      padding: 22px 24px 24px;
+    }
+
+    .stack {
+      display: grid;
+      gap: 18px;
+    }
+
+    .field {
+      display: grid;
+      gap: 8px;
+    }
+
+    label,
+    .label-row {
+      color: var(--text);
+      font-size: 13px;
+      font-weight: 750;
+    }
+
+    .label-row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+    }
+
+    .label-row small {
+      color: var(--muted);
+      font-size: 11px;
+      font-weight: 600;
+    }
+
+    input,
+    select {
+      width: 100%;
+      height: 46px;
+      padding: 0 13px;
+      border: 1px solid #cdded4;
+      border-radius: 12px;
+      outline: none;
+      background: #fff;
+      color: var(--text);
+      transition: border-color .15s, box-shadow .15s;
+    }
+
+    input::placeholder {
+      color: #93a39d;
+    }
+
+    input:focus,
+    select:focus {
+      border-color: #58a381;
+      box-shadow: 0 0 0 4px rgba(61, 149, 112, 0.13);
+    }
+
+    .dynamic-fields {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 15px;
+      padding-top: 20px;
+      border-top: 1px solid var(--border);
+    }
+
+    .ready-note {
+      display: flex;
+      align-items: flex-start;
+      gap: 10px;
+      padding: 15px;
+      border: 1px solid #d8eddd;
+      border-radius: 14px;
+      background: var(--surface-soft);
+      color: #285b49;
+      font-size: 13px;
+      line-height: 1.5;
+    }
+
+    .ready-note svg {
+      width: 17px;
+      height: 17px;
+      flex: 0 0 auto;
+      margin-top: 1px;
+    }
+
+    .computed {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 15px;
+      padding: 16px;
+      border: 1px solid #cde7d3;
+      border-radius: 15px;
+      background: #edfaef;
+    }
+
+    .computed:empty {
+      display: none;
+    }
+
+    .computed-item span {
+      display: block;
+      margin-bottom: 3px;
+      color: #43745e;
+      font-size: 11px;
+      font-weight: 700;
+    }
+
+    .computed-item strong {
+      color: #153f35;
+      font-size: 18px;
+      letter-spacing: -.02em;
+    }
+
+    .computed-footnote {
+      grid-column: 1 / -1;
+      margin: -2px 0 0;
+      color: #4f7d67;
+      font-size: 11px;
+      font-weight: 650;
+    }
+
+    .result {
+      position: sticky;
+      top: 24px;
+      border-color: transparent;
+      background: var(--primary-dark);
+      color: white;
+      box-shadow: 0 22px 58px rgba(20, 62, 51, 0.22);
+    }
+
+    .result .card-header {
+      border-color: rgba(255, 255, 255, 0.10);
+    }
+
+    .result .section-label {
+      color: #9ee7b9;
+    }
+
+    .result h2 {
+      color: white;
+    }
+
+    .message {
+      display: block;
+      min-height: 285px;
+      padding: 20px;
+      border: 1px solid rgba(255, 255, 255, .10);
+      border-radius: 15px;
+      background: rgba(255, 255, 255, .065);
+      color: #eaf8ef;
+      font-size: 15px;
+      line-height: 1.75;
+      white-space: pre-wrap;
+      overflow-wrap: anywhere;
+    }
+
+    .copy-button {
+      display: flex;
+      width: 100%;
+      min-height: 49px;
+      align-items: center;
+      justify-content: center;
+      gap: 9px;
+      margin-top: 18px;
+      padding: 12px 18px;
+      border: 0;
+      border-radius: 13px;
+      background: var(--lime);
+      color: #143b32;
+      font-weight: 850;
+      transition: background .15s, transform .08s;
+    }
+
+    .copy-button:hover {
+      background: var(--lime-hover);
+    }
+
+    .copy-button:active {
+      transform: translateY(1px);
+    }
+
+    .copy-button svg {
+      width: 18px;
+      height: 18px;
+    }
+
+    .privacy {
+      margin: 12px 0 0;
+      color: rgba(225, 247, 232, .63);
+      font-size: 11px;
+      line-height: 1.45;
+      text-align: center;
+    }
+
+    @media (max-width: 840px) {
+      .app {
+        width: min(100% - 24px, 680px);
+        padding-top: 20px;
+      }
+
+      .topbar {
+        align-items: flex-start;
+        margin-bottom: 20px;
+      }
+
+      .count {
+        display: none;
+      }
+
+      .workspace {
+        grid-template-columns: 1fr;
+      }
+
+      .result {
+        position: static;
+      }
+
+      .message {
+        min-height: 230px;
+      }
+    }
+
+    @media (max-width: 540px) {
+      .brand-icon {
+        width: 44px;
+        height: 44px;
+        border-radius: 14px;
+      }
+
+      .card-header,
+      .card-body {
+        padding-right: 17px;
+        padding-left: 17px;
+      }
+
+      .dynamic-fields,
+      .computed {
+        grid-template-columns: 1fr;
+      }
+
+      .computed-footnote {
+        grid-column: auto;
+      }
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+      * {
+        scroll-behavior: auto !important;
+        transition: none !important;
+      }
+    }
+  </style>
+</head>
+<body>
+  <main class="app">
+    <header class="topbar">
+      <div class="brand">
+        <div class="brand-icon" aria-hidden="true">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M21 15a4 4 0 0 1-4 4H8l-5 3V7a4 4 0 0 1 4-4h10a4 4 0 0 1 4 4z"/>
+            <path d="M8 9h8M8 13h5"/>
+          </svg>
+        </div>
+        <div>
+          <p class="eyebrow">Atendimento ágil</p>
+          <h1>Mensagem Pronta</h1>
+        </div>
+      </div>
+      <div class="count">12 situações · 25 respostas</div>
+    </header>
+
+    <section class="workspace">
+      <section class="card" aria-labelledby="form-title">
+        <header class="card-header">
+          <p class="section-label">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="m12 3-1.7 4.3L6 9l4.3 1.7L12 15l1.7-4.3L18 9l-4.3-1.7L12 3Z"/><path d="m19 15-.8 2.2L16 18l2.2.8L19 21l.8-2.2L22 18l-2.2-.8L19 15Z"/></svg>
+            Personalizar
+          </p>
+          <h2 id="form-title">Escolha a situação da conversa</h2>
+        </header>
+
+        <div class="card-body stack">
+          <div class="field">
+            <label for="category">Categoria da resposta</label>
+            <select id="category"></select>
+          </div>
+
+          <div class="field">
+            <div class="label-row">
+              <label for="template">Modelo de mensagem</label>
+              <small id="template-count"></small>
+            </div>
+            <select id="template"></select>
+          </div>
+
+          <div id="dynamic-area"></div>
+          <div id="computed" class="computed" aria-live="polite"></div>
+        </div>
+      </section>
+
+      <section class="card result" aria-labelledby="result-title">
+        <header class="card-header">
+          <p class="section-label">Mensagem final</p>
+          <h2 id="result-title">Pronta para enviar</h2>
+        </header>
+        <div class="card-body">
+          <output id="message" class="message" aria-live="polite"></output>
+          <button id="copy" class="copy-button" type="button">
+            <svg id="copy-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect width="14" height="14" x="8" y="8" rx="2"/><path d="M4 16c-1.1 0-2-.9-2-2V4c0-1.1.9-2 2-2h10c1.1 0 2 .9 2 2"/></svg>
+            <span id="copy-label">Copiar mensagem</span>
+          </button>
+          <p class="privacy">Os dados preenchidos ficam somente neste dispositivo. Depois é só colar a mensagem no WhatsApp.</p>
+        </div>
+      </section>
+    </section>
+  </main>
+
+  <script>
+    const nameField = { key: "nome", label: "Nome da cliente", placeholder: "Ex.: Mariana", kind: "text" };
+    const priceField = { key: "preco", label: "Valor", placeholder: "Ex.: 299,90", kind: "money" };
+    const installmentsField = { key: "parcelas", label: "Quantidade de parcelas", placeholder: "Ex.: 10", kind: "number" };
+
+    const categories = [
+      {
+        id: "loja-fisica",
+        label: "Perguntou se somos loja física",
+        templates: [
+          {
+            id: "loja-catanduva",
+            label: "Loja física + Instagram",
+            text: "Somos sim! 💚 Estamos em Catanduva. Dá uma olhada no nosso Instagram, tem várias clientes usando as peças 👇\nhttps://www.instagram.com/stories/highlights/18110346997772355/",
+            fields: []
+          }
+        ]
+      },
+      {
+        id: "valor",
+        label: "Só quer saber o valor",
+        templates: [
+          {
+            id: "performance",
+            label: "Explicar a linha Performance",
+            text: "Claro! Essa é da linha Performance — o tecido tem compressão, não marca e não fica transparente no agachamento (a dor de todo mundo, né? 😅). Ela sai por {{preco}}, e dá para parcelar. Posso te mostrar ela num conjunto que fica perfeito? Tenho uma combinação que muita cliente leva junto.",
+            fields: [priceField]
+          },
+          {
+            id: "valor-diferencial",
+            label: "Valor + diferencial real",
+            text: "Oi, {{nome}}! Essa peça é {{preco}}, ou {{valorParcela}} em até {{parcelas}}x no cartão 💳 {{diferencial}}. Consigo separar ela para você experimentar hoje ou amanhã?",
+            fields: [
+              nameField,
+              priceField,
+              installmentsField,
+              { key: "diferencial", label: "Tecnologia ou diferencial real", placeholder: "Ex.: o tecido não fica transparente", kind: "text" }
+            ],
+            defaults: { parcelas: "10" }
+          }
+        ]
+      },
+      {
+        id: "sumiu",
+        label: "Cliente sumiu / não respondeu",
+        templates: [
+          {
+            id: "ultimas-unidades",
+            label: "Últimas unidades",
+            text: "Oi! Só para não perder: restam poucas no seu tamanho e a condição dessa semana vai até sexta 💚 Se quiser, garanto a sua. Qualquer coisa, tô por aqui sempre que precisar!",
+            fields: []
+          },
+          {
+            id: "legging-cashback",
+            label: "Nova combinação + cashback",
+            text: "Passando para avisar que aquela legging combina demais com um top que chegou essa semana 👀 E lembrando: comprando agora você já garante 10% de cashback para a próxima. Quer que eu separe?",
+            fields: []
+          }
+        ]
+      },
+      {
+        id: "caro",
+        label: "Cliente disse que está caro",
+        templates: [
+          {
+            id: "explicar-tecnologia",
+            label: "Explicar tecnologia e benefício",
+            text: "Te entendo! O que encarece um pouco é a tecnologia: {{tecnologia}} — é o que garante {{beneficio}}. Peça sem essa tecnologia costuma perder o caimento rápido. Quer que eu te mostre uma opção parecida num valor um pouco menor também?",
+            fields: [
+              { key: "tecnologia", label: "Tecnologia específica", placeholder: "Ex.: tecido de alta compressão", kind: "text" },
+              { key: "beneficio", label: "Benefício real", placeholder: "Ex.: firmeza e zero transparência", kind: "text" }
+            ]
+          },
+          {
+            id: "opcao-menor",
+            label: "Oferecer opção de menor valor",
+            text: "Sem problemas, {{nome}}! Tenho uma opção parecida por {{valorMenor}}, mesma proposta, de outra linha. Quer ver?",
+            fields: [
+              nameField,
+              { key: "valorMenor", label: "Valor da opção mais barata", placeholder: "Ex.: 199,90", kind: "money" }
+            ]
+          }
+        ]
+      },
+      {
+        id: "linha",
+        label: "Interessou-se por alguma linha",
+        templates: [
+          {
+            id: "dryside",
+            label: "Linha Dryside",
+            text: "Essa linha (Dryside) é ótima para o dia a dia corrido: tecido leve, superfície lisa, seca rápido e o processo de tingimento usa menos água — praticidade e consciência ambiental juntas. Quer ver as cores disponíveis?",
+            fields: []
+          },
+          {
+            id: "seamless-breeze",
+            label: "Linha Seamless Breeze",
+            text: "Ótima escolha! A Seamless Breeze é feita com tecnologia sem costura — o acabamento fica mais liso e confortável, sem marcar. O tecido tem a poliamida SENSIL® Breeze, que ajuda a manter a temperatura do corpo estável durante o treino. É ideal para treinos de intensidade moderada. Você usa mais para corrida, musculação ou dia a dia?",
+            fields: []
+          },
+          {
+            id: "allure",
+            label: "Linha Allure",
+            text: "A Allure tem aquele visual mais sofisticado, com textura canelada e zero transparência — dá para usar treinando e seguir o dia sem trocar de roupa. Vale a pena ver de perto. Posso separar no seu tamanho?",
+            fields: []
+          }
+        ]
+      },
+      {
+        id: "vai-pensar",
+        label: "Cliente disse que vai pensar",
+        templates: [
+          {
+            id: "resumo-peca",
+            label: "Deixar os dados da peça",
+            text: "Sem problema, {{nome}}! Vou deixar tudo certinho aqui para você não precisar procurar depois quando pensar melhor:\n\n{{peca}}, {{tecido}}, tamanho {{tamanho}}, por {{preco}}.\n\nSe quiser, eu também te envio as fotos de todos os modelos que temos dessa mesma peça. Quer que eu te envie?",
+            fields: [
+              nameField,
+              { key: "peca", label: "Nome da peça", placeholder: "Ex.: Legging Performance", kind: "text" },
+              { key: "tecido", label: "Tecido ou modelagem", placeholder: "Ex.: poliamida de alta compressão", kind: "text" },
+              { key: "tamanho", label: "Tamanho", placeholder: "Ex.: M", kind: "text" },
+              priceField
+            ]
+          },
+          {
+            id: "novidades",
+            label: "Disponibilidade + novidades",
+            text: "Claro! Qualquer dúvida sobre tecido, tamanho ou caimento, me chama que te ajudo. Vou te mandar por aqui quando chegarem as novidades da quinzena, tudo bem?",
+            fields: []
+          }
+        ]
+      },
+      {
+        id: "cashback",
+        label: "Fechamento / cadastro / cashback",
+        templates: [
+          {
+            id: "pix-cashback",
+            label: "Desconto no Pix + cashback",
+            text: "Perfeito! Se fechar via Pix ainda tem 5% de desconto — fica {{valorComDesconto}}. E com o cadastro você já garante {{valorCashback}} para a próxima compra. Posso te mandar a chave?",
+            fields: [
+              { key: "preco", label: "Valor original da compra", placeholder: "Ex.: 299,90", kind: "money" },
+              { key: "percentualCashback", label: "Cashback (%)", placeholder: "Ex.: 10", kind: "percent" }
+            ],
+            defaults: { percentualCashback: "10" }
+          },
+          {
+            id: "cadastro-cashback",
+            label: "Pedir dados para cadastro",
+            text: "Ótimo, {{nome}}! Vou fazer seu cadastro rapidinho aqui — com essa compra você já garante 10% de cashback, ou seja, {{valorCashback}} de crédito para sua próxima compra. Pode me passar seu nome completo, CEP e CPF para fazer seu cadastro?",
+            fields: [
+              nameField,
+              { key: "preco", label: "Valor da compra", placeholder: "Ex.: 299,90", kind: "money" }
+            ],
+            defaults: { percentualCashback: "10" }
+          },
+          {
+            id: "convite-loja",
+            label: "Convidar para experimentar na loja",
+            text: "Claro, {{nome}}! Se o que estiver te deixando em dúvida for tamanho ou caimento, quando estiver passando por aqui dá uma passadinha na loja para você vestir e sentir no corpo, sem compromisso.\n\nA loja fica na R. Ceará, 727 - Centro e tem estacionamento, fica facinho de parar.",
+            fields: [nameField]
+          }
+        ]
+      },
+      {
+        id: "reativacao",
+        label: "Reativação de cliente",
+        templates: [
+          {
+            id: "evento-data",
+            label: "Ocasião ou evento",
+            text: "Oi, {{nome}}! Lembrei de você por causa do {{evento}}. Separei {{quantidade}} peças que combinam com a ocasião e com o estilo que você procurou da outra vez. Quer que eu te mande as fotos por aqui?",
+            fields: [
+              nameField,
+              { key: "evento", label: "Evento ou data", placeholder: "Ex.: sua viagem no próximo mês", kind: "text" },
+              { key: "quantidade", label: "Quantidade de peças", placeholder: "Ex.: 3", kind: "number" }
+            ]
+          },
+          {
+            id: "cashback-disponivel",
+            label: "Cashback disponível",
+            text: "Oi, {{nome}}! Vi aqui que você tem {{cashbackDisponivel}} de cashback disponível para usar. Vou te mandar fotos de algumas peças que acabaram de chegar; se gostar de alguma e quiser aproveitar o cashback, pode me chamar.",
+            fields: [
+              nameField,
+              { key: "cashbackDisponivel", label: "Cashback disponível", placeholder: "Ex.: 30,00", kind: "money" }
+            ]
+          }
+        ]
+      },
+      {
+        id: "parcelamento",
+        label: "Usar o parcelamento a favor",
+        templates: [
+          {
+            id: "conjunto-parcelado",
+            label: "Conjunto + linha da peça",
+            text: "Oi, {{nome}}! Lindo esse conjunto, né? Ele sai por {{preco}}, mas dá para parcelar em até {{parcelas}}x sem juros, de {{valorParcela}}. Ele é da linha {{linha}}, com tecido tecnológico que não fica transparente e nem precisa passar — é lavar e usar. Me conta: você procura algo dessa linha ou um conjunto mais básico? Te mostro as opções que temos disponíveis.",
+            fields: [
+              nameField,
+              priceField,
+              installmentsField,
+              { key: "linha", label: "Linha da peça", placeholder: "Ex.: Performance", kind: "text" }
+            ],
+            defaults: { parcelas: "10" }
+          },
+          {
+            id: "tecnologia-parcelado",
+            label: "Tecnologia + parcelamento",
+            text: "Oi, {{nome}}! Essa peça é uma das mais vendidas aqui na loja por conta da tecnologia que ela possui: {{tecnologia}}. Ela está saindo por {{preco}}, mas também consigo parcelar para você em até {{parcelas}}x sem juros, de {{valorParcela}}. Você treina mais em academia, faz corrida ou também usa no dia a dia? Assim já te falo se essa é a melhor opção para você.",
+            fields: [
+              nameField,
+              { key: "tecnologia", label: "Tecnologia principal da peça", placeholder: "Ex.: proteção UV e secagem rápida", kind: "text" },
+              priceField,
+              installmentsField
+            ],
+            defaults: { parcelas: "10" }
+          }
+        ]
+      },
+      {
+        id: "follow-up-1",
+        label: "Follow-up 1 — 24 horas",
+        templates: [
+          {
+            id: "resumo-conjunto",
+            label: "Resumo do conjunto",
+            text: "{{nome}}, deixando o resumo do conjunto que você gostou:\n\n{{parteCima}} + {{parteBaixo}}, por {{preco}} ou em até {{parcelas}}x sem juros.\n\nO tecido {{beneficio}}. Deixei tudo registrado aqui para você consultar quando quiser.",
+            fields: [
+              nameField,
+              { key: "parteCima", label: "Nome da parte de cima", placeholder: "Ex.: Top Allure", kind: "text" },
+              { key: "parteBaixo", label: "Nome da parte de baixo", placeholder: "Ex.: Legging Allure", kind: "text" },
+              priceField,
+              installmentsField,
+              { key: "beneficio", label: "Benefício real do tecido", placeholder: "Ex.: não fica transparente e seca rápido", kind: "text" }
+            ],
+            defaults: { parcelas: "10" }
+          },
+          {
+            id: "convite-conhecer-loja",
+            label: "Convite para conhecer a loja",
+            text: "Oi, {{nome}}! Como ainda não consegui conversar com você por aqui, queria deixar um convite: quando estiver por perto, venha conhecer a loja e experimentar as peças com calma. Assim, você consegue sentir no corpo a diferença dos tecidos, das modelagens e do conforto da LIVE!\n\nEstamos na Rua Ceará, 727 — Centro, e temos estacionamento. Se preferir continuar o atendimento pelo WhatsApp, é só me contar o que procura ou em quais momentos pretende usar as peças. Posso separar algumas opções para você conhecer, sem compromisso 😊",
+            fields: [nameField]
+          }
+        ]
+      },
+      {
+        id: "follow-up-2",
+        label: "Follow-up 2 — A prova (3 dias)",
+        templates: [
+          {
+            id: "foto-conjunto",
+            label: "Foto real do conjunto",
+            text: "{{nome}}, montamos essa semana um conjunto com a mesma {{peca}} que você viu. Ficou bem diferente de olhar a peça sozinha, principalmente por causa do {{diferencial}}. Quer que eu te mande uma foto real do conjunto montado?",
+            fields: [
+              nameField,
+              { key: "peca", label: "Peça que a cliente viu", placeholder: "Ex.: legging Performance", kind: "text" },
+              { key: "diferencial", label: "Caimento, cores ou modelagem", placeholder: "Ex.: caimento e combinação de cores", kind: "text" }
+            ]
+          },
+          {
+            id: "duvida-ocasiao",
+            label: "Escolher pela ocasião de uso",
+            text: "Oi, {{nome}}! Talvez você tenha ficado em dúvida.\n\nUma dica para escolher uma peça da LIVE! é começar pela ocasião de uso, porque cada tecido e modelagem entrega uma sensação diferente no corpo. Se quiser, me fale se procura algo para rotina de treino ou se busca algo mais casual, que daí posso te mostrar algumas opções e explicar de forma bem prática a diferença entre elas — sem compromisso.",
+            fields: [nameField]
+          }
+        ]
+      },
+      {
+        id: "follow-up-3",
+        label: "Follow-up 3 — A segurança (7 dias)",
+        templates: [
+          {
+            id: "comparar-linhas",
+            label: "Comparar opção de outra linha",
+            text: "{{nome}}, se você gostou da proposta, mas ainda está em dúvida sobre {{duvida}}, posso te mostrar uma opção parecida de outra linha. Ela mantém {{beneficio}} e fica em {{preco}}. Assim você compara as duas antes de decidir.",
+            fields: [
+              nameField,
+              { key: "duvida", label: "Motivo da dúvida", placeholder: "Ex.: valor, modelagem ou tecido", kind: "text" },
+              { key: "beneficio", label: "Benefício importante", placeholder: "Ex.: zero transparência", kind: "text" },
+              priceField
+            ]
+          },
+          {
+            id: "duas-sugestoes",
+            label: "Duas sugestões de conjunto",
+            text: "Oi, {{nome}}! Para deixar a escolha mais simples, montei duas sugestões de conjunto: uma opção mais básica e versátil e outra mais específica para treino, já com os respectivos valores. Assim você compara com calma e vê o que faz mais sentido para o seu momento. Se gostar e tiver alguma dúvida, me chama aqui.",
+            fields: [nameField]
+          }
+        ]
+      }
+    ];
+
+    const categorySelect = document.getElementById("category");
+    const templateSelect = document.getElementById("template");
+    const templateCount = document.getElementById("template-count");
+    const dynamicArea = document.getElementById("dynamic-area");
+    const computedArea = document.getElementById("computed");
+    const messageOutput = document.getElementById("message");
+    const copyButton = document.getElementById("copy");
+    const copyLabel = document.getElementById("copy-label");
+    let values = {};
+
+    function parseNumber(raw) {
+      if (!raw) return 0;
+      const clean = String(raw).replace(/\s/g, "");
+      const normalized = clean.includes(",")
+        ? clean.replace(/\./g, "").replace(",", ".")
+        : clean;
+      return Number(normalized) || 0;
+    }
+
+    function formatMoney(value) {
+      return new Intl.NumberFormat("pt-BR", {
+        style: "currency",
+        currency: "BRL"
+      }).format(value);
+    }
+
+    function currentCategory() {
+      return categories.find(function (item) {
+        return item.id === categorySelect.value;
+      }) || categories[0];
+    }
+
+    function currentTemplate() {
+      const category = currentCategory();
+      return category.templates.find(function (item) {
+        return item.id === templateSelect.value;
+      }) || category.templates[0];
+    }
+
+    function fillCategoryOptions() {
+      categories.forEach(function (category) {
+        const option = document.createElement("option");
+        option.value = category.id;
+        option.textContent = category.label;
+        categorySelect.appendChild(option);
+      });
+    }
+
+    function fillTemplateOptions() {
+      const category = currentCategory();
+      templateSelect.replaceChildren();
+      category.templates.forEach(function (template) {
+        const option = document.createElement("option");
+        option.value = template.id;
+        option.textContent = template.label;
+        templateSelect.appendChild(option);
+      });
+      templateCount.textContent = category.templates.length + (category.templates.length === 1 ? " opção" : " opções");
+    }
+
+    function resetValues() {
+      const template = currentTemplate();
+      values = Object.assign({}, template.defaults || {});
+    }
+
+    function renderFields() {
+      const template = currentTemplate();
+      dynamicArea.replaceChildren();
+
+      if (template.fields.length === 0) {
+        const note = document.createElement("div");
+        note.className = "ready-note";
+        note.innerHTML = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><circle cx="12" cy="12" r="10"/><path d="M12 16v-4M12 8h.01"/></svg><span>Esta mensagem não precisa de dados adicionais e já está pronta para copiar.</span>';
+        dynamicArea.appendChild(note);
+        return;
+      }
+
+      const grid = document.createElement("div");
+      grid.className = "dynamic-fields";
+
+      template.fields.forEach(function (field) {
+        const wrapper = document.createElement("div");
+        wrapper.className = "field";
+
+        const label = document.createElement("label");
+        label.htmlFor = "field-" + field.key;
+        label.textContent = field.label;
+
+        const input = document.createElement("input");
+        input.id = "field-" + field.key;
+        input.type = "text";
+        input.autocomplete = "off";
+        input.inputMode = field.kind === "money" || field.kind === "number" || field.kind === "percent" ? "decimal" : "text";
+        input.placeholder = field.placeholder || "";
+        input.value = values[field.key] || "";
+        input.addEventListener("input", function () {
+          values[field.key] = input.value;
+          copyLabel.textContent = "Copiar mensagem";
+          renderOutput();
+        });
+
+        wrapper.append(label, input);
+        grid.appendChild(wrapper);
+      });
+
+      dynamicArea.appendChild(grid);
+    }
+
+    function buildReplacements(template) {
+      const replacements = {};
+      template.fields.forEach(function (field) {
+        const raw = String(values[field.key] || "").trim();
+        if (!raw) return;
+        replacements[field.key] = field.kind === "money" ? formatMoney(parseNumber(raw)) : raw;
+      });
+
+      const price = parseNumber(values.preco);
+      const installments = parseNumber(values.parcelas);
+      const cashbackPercent = parseNumber(values.percentualCashback || template.defaults && template.defaults.percentualCashback);
+
+      if (values.preco && installments > 0) {
+        replacements.valorParcela = formatMoney(price / installments);
+      }
+      if (values.preco && cashbackPercent > 0) {
+        replacements.valorCashback = formatMoney(price * cashbackPercent / 100);
+      }
+      if (values.preco) {
+        replacements.valorComDesconto = formatMoney(price * 0.95);
+      }
+
+      return replacements;
+    }
+
+    function renderComputed(template, replacements) {
+      computedArea.replaceChildren();
+      const rows = [];
+
+      if (template.text.includes("{{valorComDesconto}}")) {
+        rows.push({ label: "Valor com 5% de desconto", value: replacements.valorComDesconto || "—" });
+      }
+      if (template.text.includes("{{valorCashback}}")) {
+        rows.push({ label: "Valor do cashback", value: replacements.valorCashback || "—" });
+      }
+      if (template.text.includes("{{valorParcela}}")) {
+        rows.push({ label: "Valor de cada parcela", value: replacements.valorParcela || "—" });
+      }
+
+      rows.forEach(function (row) {
+        const item = document.createElement("div");
+        item.className = "computed-item";
+        const label = document.createElement("span");
+        label.textContent = row.label;
+        const value = document.createElement("strong");
+        value.textContent = row.value;
+        item.append(label, value);
+        computedArea.appendChild(item);
+      });
+
+      if (rows.length > 0) {
+        const footnote = document.createElement("p");
+        footnote.className = "computed-footnote";
+        footnote.textContent = "✦ Calculado automaticamente";
+        computedArea.appendChild(footnote);
+      }
+    }
+
+    function renderOutput() {
+      const template = currentTemplate();
+      const replacements = buildReplacements(template);
+      const message = template.text.replace(/{{(.*?)}}/g, function (_, key) {
+        if (replacements[key]) return replacements[key];
+        const field = template.fields.find(function (item) {
+          return item.key === key;
+        });
+        const derivedLabels = {
+          valorParcela: "valor de cada parcela",
+          valorCashback: "valor do cashback",
+          valorComDesconto: "valor com desconto"
+        };
+        return "[Preencha: " + (field ? field.label : derivedLabels[key] || key) + "]";
+      });
+      messageOutput.textContent = message;
+      renderComputed(template, replacements);
+    }
+
+    function selectFirstTemplate() {
+      fillTemplateOptions();
+      templateSelect.value = currentCategory().templates[0].id;
+      resetValues();
+      renderFields();
+      renderOutput();
+    }
+
+    categorySelect.addEventListener("change", selectFirstTemplate);
+    templateSelect.addEventListener("change", function () {
+      resetValues();
+      renderFields();
+      renderOutput();
+      copyLabel.textContent = "Copiar mensagem";
+    });
+
+    copyButton.addEventListener("click", async function () {
+      const text = messageOutput.textContent;
+      try {
+        await navigator.clipboard.writeText(text);
+      } catch (_) {
+        const temporary = document.createElement("textarea");
+        temporary.value = text;
+        temporary.style.position = "fixed";
+        temporary.style.opacity = "0";
+        document.body.appendChild(temporary);
+        temporary.select();
+        document.execCommand("copy");
+        temporary.remove();
+      }
+
+      copyLabel.textContent = "Mensagem copiada!";
+      window.setTimeout(function () {
+        copyLabel.textContent = "Copiar mensagem";
+      }, 1800);
+    });
+
+    fillCategoryOptions();
+    categorySelect.value = "follow-up-1";
+    selectFirstTemplate();
+  </script>
+</body>
+</html>
